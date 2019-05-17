@@ -1,55 +1,214 @@
-﻿using APIHospital.Models;
-using APIHospital.Models.Domain;
-using System;
-using System.Collections.Generic;
+﻿using APIHospital.Models.Domain;
+using APIHospital.Models.ViewModels;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
 using System.Web.Http;
 
 namespace APIHospital.Controllers
 {
-    public class PatientController : ApiController
+    [Authorize]
+    [RoutePrefix("Api/Patient")]
+    public class PatientController : BaseController
     {
         public IHttpActionResult Get()
         {
-            var dbContext = new ApplicationDbContext();
-            return Ok(dbContext.Patients.ToList());
+            System.Collections.Generic.List<PatientViewModel> patients = DbContext.Patients.Select(p => new PatientViewModel
+            {
+                FirstName = p.FirstName,
+                LastName = p.LastName,
+                Email = p.Email,
+                DateOfBirth = p.DateOfBirth,
+                HasInsurance = p.HasInsurance,
+                Id = p.Id,
+                Visits = p.Visits.Select(q => new VisitViewModel
+                {
+                    Id = q.Id,
+                    Date = q.Date,
+                    Comment = q.Comment,
+                    PatientId = q.PatientId
+                }).ToList()
+            }).ToList();
+
+            return Ok(patients);
         }
 
-        public IHttpActionResult Get(int id)
+        public IHttpActionResult Get(int? id)
         {
-            var dbContext = new ApplicationDbContext();
-            return Ok(dbContext.Patients.Where(p => p.Id == id).FirstOrDefault());
+            if (id.HasValue)
+            {
+                Patient patient = DbContext.Patients.FirstOrDefault(p => p.Id == id);
+
+                if (patient != null)
+                {
+                    PatientViewModel viewModel = new PatientViewModel
+                    {
+                        FirstName = patient.FirstName,
+                        LastName = patient.LastName,
+                        Email = patient.Email,
+                        DateOfBirth = patient.DateOfBirth,
+                        HasInsurance = patient.HasInsurance,
+                        Id = patient.Id,
+                        Visits = patient.Visits.Select(p => new VisitViewModel
+                        {
+                            Id = p.Id,
+                            Date = p.Date,
+                            Comment = p.Comment,
+                            PatientId = p.PatientId
+                        }).ToList()
+                    };
+
+                    return Ok(viewModel);
+                }
+                else
+                {
+                    return NotFound();
+                }
+            }
+            else
+            {
+                return BadRequest("Patient Id not valid");
+            }
         }
 
-        public IHttpActionResult Post(Patient patient)
+        public IHttpActionResult Post(PatientEditViewModel model)
         {
-            var dbContext = new ApplicationDbContext();
-            dbContext.Patients.Add(patient);
-            return Ok(patient);
+            if (ModelState.IsValid)
+            {
+                Patient patient = new Patient
+                {
+                    FirstName = model.FirstName,
+                    LastName = model.LastName,
+                    Email = model.Email,
+                    DateOfBirth = model.DateOfBirth,
+                    HasInsurance = model.HasInsurance,
+                };
+
+                DbContext.Patients.Add(patient);
+                DbContext.SaveChanges();
+
+                PatientViewModel viewModel = new PatientViewModel
+                {
+                    FirstName = patient.FirstName,
+                    LastName = patient.LastName,
+                    Email = patient.Email,
+                    DateOfBirth = patient.DateOfBirth,
+                    HasInsurance = patient.HasInsurance,
+                    Id = patient.Id,
+                    Visits = patient.Visits.Select(p => new VisitViewModel
+                    {
+                        Id = p.Id,
+                        Date = p.Date,
+                        Comment = p.Comment,
+                        PatientId = p.PatientId
+                    }).ToList()
+                };
+
+                return Ok(viewModel);
+            }
+            else
+            {
+                return BadRequest("Required Patient info missing.");
+            }
         }
 
-        public IHttpActionResult Put(int id, Patient patient)
+        public IHttpActionResult Put(int? id, PatientEditViewModel model)
         {
-            var dbContext = new ApplicationDbContext();
-            var patient1 = dbContext.Patients.Where(p => p.Id == id).FirstOrDefault();
-            patient1.HasInsurance = patient.HasInsurance;
-            patient1.FirstName = patient.FirstName;
-            patient1.LastName = patient.LastName;
-            dbContext.SaveChanges();
+            if (id.HasValue)
+            {
+                Patient patient = DbContext.Patients.FirstOrDefault(p => p.Id == id);
 
-            return Ok(patient);
+                if (patient != null)
+                {
+                    if (ModelState.IsValid)
+                    {
+                        patient.FirstName = model.FirstName;
+                        patient.LastName = model.LastName;
+                        patient.Email = model.Email;
+                        patient.DateOfBirth = model.DateOfBirth;
+                        patient.HasInsurance = model.HasInsurance;
+
+                        DbContext.SaveChanges();
+
+                        PatientViewModel viewModel = new PatientViewModel
+                        {
+                            FirstName = patient.FirstName,
+                            LastName = patient.LastName,
+                            Email = patient.Email,
+                            DateOfBirth = patient.DateOfBirth,
+                            HasInsurance = patient.HasInsurance,
+                            Id = patient.Id,
+                            Visits = patient.Visits.Select(p => new VisitViewModel
+                            {
+                                Id = p.Id,
+                                Date = p.Date,
+                                Comment = p.Comment,
+                                PatientId = p.PatientId
+                            }).ToList()
+                        };
+
+                        return Ok(viewModel);
+                    }
+                    else
+                    {
+                        return BadRequest("Patient info not valid");
+                    }
+                }
+                else
+                {
+                    return NotFound();
+                }
+            }
+            else
+            {
+                return BadRequest("Patient id not valid");
+            }
         }
-        
-        [Route("api/{id:int}/recordvisit")]
-        public IHttpActionResult RecordVisit(int id, Visit visit)
+
+        [Route("recordvisit/{id:int}")]
+        public IHttpActionResult RecordVisit(int? id, VisitViewModel model)
         {
-            var dbContext = new ApplicationDbContext();
-            var patient = dbContext.Patients.Where(p => p.Id == id).FirstOrDefault();
-            patient.Visits.Add(visit);
-            dbContext.SaveChanges();
-            return Ok(patient);
+            if (id.HasValue)
+            {
+                Patient patient = DbContext.Patients.FirstOrDefault(p => p.Id == id);
+
+                if (patient != null)
+                {
+                    if (ModelState.IsValid)
+                    {
+                        Visit visit = new Visit
+                        {
+                            Comment = model.Comment,
+                            Patient = patient,
+                            PatientId = patient.Id,
+                        };
+
+                        patient.Visits.Add(visit);
+
+                        DbContext.SaveChanges();
+
+                        VisitViewModel viewModel = new VisitViewModel
+                        {
+                            Id = visit.Id,
+                            Comment = visit.Comment,
+                            Date = visit.Date,
+                            PatientId = visit.PatientId
+                        };
+
+                        return Ok(viewModel);
+                    }
+                    else
+                    {
+                        return BadRequest("Visit info required");
+                    }
+                }
+                else
+                {
+                    return NotFound();
+                }
+            }
+            else
+            {
+                return BadRequest("Patient id not valid");
+            }
         }
     }
 }
