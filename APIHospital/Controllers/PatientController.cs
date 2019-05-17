@@ -31,6 +31,7 @@ namespace APIHospital.Controllers
             return Ok(patients);
         }
 
+        [Route("{id:int}")]
         public IHttpActionResult Get(int? id)
         {
             if (id.HasValue)
@@ -110,6 +111,7 @@ namespace APIHospital.Controllers
             }
         }
 
+        [Route("{id:int}")]
         public IHttpActionResult Put(int? id, PatientEditViewModel model)
         {
             if (id.HasValue)
