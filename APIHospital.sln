@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.421
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "APIHospital", "APIHospital\APIHospital.csproj", "{A98D5D3F-FD74-49F6-A523-AA58F57BEB29}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A98D5D3F-FD74-49F6-A523-AA58F57BEB29}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A98D5D3F-FD74-49F6-A523-AA58F57BEB29}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A98D5D3F-FD74-49F6-A523-AA58F57BEB29}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A98D5D3F-FD74-49F6-A523-AA58F57BEB29}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {63A00CED-65E8-4C24-A7EB-43C1D5BADE7B}
+	EndGlobalSection
+EndGlobal
