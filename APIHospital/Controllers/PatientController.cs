@@ -9,6 +9,12 @@ namespace APIHospital.Controllers
     [RoutePrefix("Api/Patient")]
     public class PatientController : BaseController
     {
+        /// <summary>
+        /// Get method to return all patients
+        /// </summary>
+        /// <returns>
+        /// ok list of patients
+        /// </returns>
         public IHttpActionResult Get()
         {
             System.Collections.Generic.List<PatientViewModel> patients = DbContext.Patients.Select(p => new PatientViewModel
@@ -31,6 +37,15 @@ namespace APIHospital.Controllers
             return Ok(patients);
         }
 
+        /// <summary>
+        /// get method to return a patient
+        /// </summary>
+        /// <param name="id">
+        /// Patient id int required
+        /// </param>
+        /// <returns>
+        /// ok patient
+        /// </returns>
         [Route("{id:int}")]
         public IHttpActionResult Get(int? id)
         {
@@ -70,6 +85,15 @@ namespace APIHospital.Controllers
             }
         }
 
+        /// <summary>
+        /// Post method to create a patient
+        /// </summary>
+        /// <param name="model">
+        /// model with patient info, first, last name and date of birth required
+        /// </param>
+        /// <returns>
+        /// ok with patient
+        /// </returns>
         public IHttpActionResult Post(PatientEditViewModel model)
         {
             if (ModelState.IsValid)
@@ -111,6 +135,18 @@ namespace APIHospital.Controllers
             }
         }
 
+        /// <summary>
+        /// Put method to edit patient info
+        /// </summary>
+        /// <param name="id">
+        /// patient id int required
+        /// </param>
+        /// <param name="model">
+        /// model with patient info, first, last name and date of birth required
+        /// </param>
+        /// <returns>
+        /// ok patient
+        /// </returns>
         [Route("{id:int}")]
         public IHttpActionResult Put(int? id, PatientEditViewModel model)
         {
@@ -165,6 +201,18 @@ namespace APIHospital.Controllers
             }
         }
 
+        /// <summary>
+        /// method to record visit to a patient
+        /// </summary>
+        /// <param name="id">
+        /// patient id int required
+        /// </param>
+        /// <param name="model">
+        /// model with visit info, visit comment required
+        /// </param>
+        /// <returns>
+        /// ok visit info with patient id
+        /// </returns>
         [Route("recordvisit/{id:int}")]
         public IHttpActionResult RecordVisit(int? id, VisitViewModel model)
         {
